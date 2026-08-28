@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediPulse AI — Healthcare Communication & Document Assistant</title>
+    <meta name="description" content="AI-Powered Prescription Parser, Medical Entity Extractor, Dosage Scheduler & Voice Guidance Assistant">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Phosphor Icons -->
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/fill/style.css">
+
+    <style>
+        :root {
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-heading: 'Outfit', sans-serif;
+
+            /* Dark Theme Colors */
+            --bg-primary: #0b0f19;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.75);
+            --bg-card-hover: rgba(31, 41, 55, 0.85);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(0, 210, 211, 0.3);
+
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+
+            --primary: #00d2d3;
+            --primary-glow: rgba(0, 210, 211, 0.25);
+            --primary-gradient: linear-gradient(135deg, #00d2d3 0%, #0984e3 100%);
+            --accent-emerald: #10b981;
+            --accent-rose: #f43f5e;
+            --accent-amber: #f59e0b;
+            --accent-indigo: #6366f1;
+
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f1f5f9;
+            --bg-secondary: #ffffff;
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --bg-card-hover: rgba(248, 250, 252, 0.95);
+            --border-color: rgba(0, 0, 0, 0.08);
+            --border-highlight: rgba(0, 168, 168, 0.4);
+
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+
+            --primary: #00a8a8;
+            --primary-glow: rgba(0, 168, 168, 0.2);
+            --primary-gradient: linear-gradient(135deg, #00a8a8 0%, #0284c7 100%);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-sans);
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 210, 211, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.05) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        /* Top Navigation */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 32px;
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius-sm);
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 24px;
+            box-shadow: 0 0 16px var(--primary-glow);
+        }
+
+        .brand-text h1 {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-text span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--accent-emerald);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-emerald);
+            box-shadow: 0 0 8px var(--accent-emerald);
+            animation: pulseDot 2s infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.6; }
+        }
+
+        .nav-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .nav-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--border-highlight);
+            background: var(--bg-card-hover);
+        }
+
+        /* App Container */
+        .app-container {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            flex: 1;
+        }
+
+        /* Hero Banner */
+        .hero-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-gradient);
+        }
+
+        .hero-title h2 {
+            font-family: var(--font-heading);
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .hero-title p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            max-width: 650px;
+            line-height: 1.5;
+        }
+
+        .sample-badge-list {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .sample-badge-list span {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .samples-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .sample-pill-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .sample-pill-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(0, 210, 211, 0.08);
+            transform: translateY(-1px);
+        }
+
+        /* Studio Main Layout */
+        .studio-grid {
+            display: grid;
+            grid-template-columns: 460px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 1080px) {
+            .studio-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Left Panel - Upload & Preview */
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-family: var(--font-heading);
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title i {
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        /* Upload Dropzone */
+        .dropzone {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 32px 20px;
+            text-align: center;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.02);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .dropzone:hover, .dropzone.dragover {
+            border-color: var(--primary);
+            background: rgba(0, 210, 211, 0.05);
+            transform: scale(1.01);
+        }
+
+        .dropzone input[type="file"] {
+            display: none;
+        }
+
+        .dropzone-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(0, 210, 211, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .dropzone h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .dropzone p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .dropzone .file-formats {
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .format-badge {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Document Preview Studio */
+        .preview-container {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .preview-wrapper {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-wrapper img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.2s ease;
+        }
+
+        /* Laser Scanner Overlay Effect */
+        .scanner-laser {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00d2d3, #ffffff, #00d2d3, transparent);
+            box-shadow: 0 0 15px #00d2d3, 0 0 25px #00d2d3;
+            animation: scanLine 2s ease-in-out infinite alternate;
+            z-index: 10;
+        }
+
+        @keyframes scanLine {
+            0% { top: 0%; opacity: 0.8; }
+            100% { top: 98%; opacity: 0.8; }
+        }
+
+        .preview-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .icon-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .icon-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--primary);
+        }
+
+        /* Action Buttons */
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: #ffffff;
+            border: none;
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 14px var(--primary-glow);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            width: 100%;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--primary-glow);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Right Panel - Results Dashboard */
+        .results-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            background: var(--bg-card);
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 60px 40px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .empty-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: var(--text-muted);
+        }
+
+        .empty-state h3 {
+            font-family: var(--font-heading);
+            font-size: 1.3rem;
+            color: var(--text-primary);
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            max-width: 420px;
+            line-height: 1.5;
+        }
+
+        /* Stats Bar */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .stat-icon.meds { background: rgba(0, 210, 211, 0.1); color: var(--primary); }
+        .stat-icon.diag { background: rgba(244, 63, 94, 0.1); color: var(--accent-rose); }
+        .stat-icon.dose { background: rgba(245, 158, 11, 0.1); color: var(--accent-amber); }
+        .stat-icon.freq { background: rgba(99, 102, 241, 0.1); color: var(--accent-indigo); }
+
+        .stat-info .stat-value {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .stat-info .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        /* Voice Guidance Card */
+        .voice-card {
+            background: linear-gradient(135deg, rgba(0, 210, 211, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%);
+            border: 1px solid var(--border-highlight);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .voice-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .voice-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 24px;
+            box-shadow: 0 0 16px var(--primary-glow);
+        }
+
+        .voice-text h4 {
+            font-family: var(--font-heading);
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .voice-text p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .voice-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .voice-select {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .voice-btn {
+            background: var(--primary);
+            color: #0b0f19;
+            font-weight: 700;
+            border: none;
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+        }
+
+        .voice-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        .voice-btn.playing {
+            background: var(--accent-rose);
+            color: #ffffff;
+        }
+
+        /* Findings Tabs */
+        .tabs-header {
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            background: rgba(0, 210, 211, 0.1);
+        }
+
+        .tab-pane {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .tab-pane.active {
+            display: flex;
+        }
+
+        /* Medication Cards Grid */
+        .entity-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .section-subtitle {
+            font-family: var(--font-heading);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cards-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 14px;
+        }
+
+        .med-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .med-card:hover {
+            border-color: var(--border-highlight);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .med-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--primary);
+        }
+
+        .med-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .med-name {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .med-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .pill-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .pill-dosage { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .pill-freq { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+        .pill-diag { background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+
+        .med-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 8px 10px;
+            border-radius: var(--radius-sm);
+        }
+
+        /* Schedule Timeline */
+        .timeline-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .timeline-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .timeline-slot {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .slot-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .slot-items {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Code/JSON Pre Blocks */
+        .code-box {
+            position: relative;
+            background: #0d1117;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            overflow-x: auto;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .code-header span {
+            font-size: 0.75rem;
+            font-family: monospace;
+            color: var(--text-muted);
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .copy-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--primary);
+        }
+
+        pre {
+            font-family: 'Fira Code', Consolas, Monaco, monospace;
+            font-size: 0.85rem;
+            color: #38bdf8;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 380px;
+            overflow-y: auto;
+        }
+
+        /* Loading Spinner Animation */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            border-top-color: #ffffff;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: auto;
+            border-top: 1px solid var(--border-color);
+            padding: 20px 32px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            background: var(--bg-card);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <div class="brand-icon">
+                <i class="ph-fill ph-heartbeat"></i>
+            </div>
+            <div class="brand-text">
+                <h1>MediPulse AI</h1>
+                <span>Clinical Assistant & Document Studio</span>
+            </div>
+        </div>
+
+        <div class="nav-actions">
+            <div class="status-pill" id="backendStatus">
+                <div class="status-dot"></div>
+                <span>Backend Online</span>
+            </div>
+            <button class="nav-btn" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                <i class="ph ph-moon" id="themeIcon"></i>
+            </button>
+            <a href="/docs" target="_blank" class="nav-btn" title="View Swagger API Docs">
+                <i class="ph ph-code"></i>
+                <span>API Docs</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Application Container -->
+    <main class="app-container">
+
+        <!-- Hero Header -->
+        <section class="hero-banner">
+            <div class="hero-title">
+                <h2>Medical Document & Prescription Assistant</h2>
+                <p>Upload handwritten or printed prescriptions (JPG, PNG, PDF) to automatically parse clinical text, isolate medication schedules, and generate spoken patient guidance.</p>
+            </div>
+            <div class="sample-badge-list">
+                <span>Quick Test with Dataset Samples:</span>
+                <div class="samples-pills" id="samplePills">
+                    <button class="sample-pill-btn" onclick="loadSample('eka_000.jpg')"><i class="ph-fill ph-file-image"></i> eka_000.jpg</button>
+                    <button class="sample-pill-btn" onclick="loadSample('eka_001.jpg')"><i class="ph-fill ph-file-image"></i> eka_001.jpg</button>
+                    <button class="sample-pill-btn" onclick="loadSample('eka_002.jpg')"><i class="ph-fill ph-file-image"></i> eka_002.jpg</button>
+                    <button class="sample-pill-btn" onclick="loadSample('eka_004.jpg')"><i class="ph-fill ph-file-image"></i> eka_004.jpg</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Studio Grid -->
+        <div class="studio-grid">
+
+            <!-- Left Column: Upload & Preview Card -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="ph-fill ph-cloud-arrow-up"></i>
+                        <span>Prescription Upload</span>
+                    </div>
+                    <span id="fileBadge" class="format-badge" style="display:none;">READY</span>
+                </div>
+
+                <!-- Drag & Drop Zone -->
+                <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+                    <div class="dropzone-icon">
+                        <i class="ph ph-file-arrow-up"></i>
+                    </div>
+                    <div>
+                        <h4 id="dropText">Drag & Drop prescription here</h4>
+                        <p>or click to browse from computer</p>
+                    </div>
+                    <div class="file-formats">
+                        <span class="format-badge">PNG</span>
+                        <span class="format-badge">JPG</span>
+                        <span class="format-badge">PDF</span>
+                    </div>
+                    <input type="file" id="fileInput" accept="image/png,image/jpeg,image/jpg,application/pdf" onchange="handleFileSelected(event)">
+                </div>
+
+                <!-- Document Interactive Preview -->
+                <div class="preview-container" id="previewContainer">
+                    <div class="preview-wrapper">
+                        <div class="scanner-laser" id="scannerLaser"></div>
+                        <img id="imagePreview" src="" alt="Prescription Preview">
+                    </div>
+                    <div class="preview-controls">
+                        <span id="previewMeta">eka_000.jpg</span>
+                        <div class="preview-actions">
+                            <button class="icon-btn" onclick="zoomPreview(1.1)" title="Zoom In"><i class="ph ph-magnifying-glass-plus"></i></button>
+                            <button class="icon-btn" onclick="zoomPreview(0.9)" title="Zoom Out"><i class="ph ph-magnifying-glass-minus"></i></button>
+                            <button class="icon-btn" onclick="resetZoom()" title="Reset"><i class="ph ph-arrows-counter-clockwise"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Process Button -->
+                <button class="btn-primary" id="processBtn" onclick="processDocument()" disabled>
+                    <i class="ph-fill ph-sparkle"></i>
+                    <span id="btnText">Analyze Prescription</span>
+                </button>
+            </div>
+
+            <!-- Right Column: Findings Dashboard -->
+            <div class="results-container">
+
+                <!-- Empty Initial State -->
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">
+                        <i class="ph ph-clipboard-text"></i>
+                    </div>
+                    <h3>No Document Analyzed Yet</h3>
+                    <p>Upload a medical document or select a sample prescription from the top bar to view OCR transcript, detected medications, dosages, and patient audio guidance.</p>
+                </div>
+
+                <!-- Active Results Dashboard (Hidden until processed) -->
+                <div id="resultsDashboard" style="display: none; flex-direction: column; gap: 20px;">
+
+                    <!-- Quick Metrics Bar -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon meds"><i class="ph-fill ph-pill"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value" id="statMeds">0</div>
+                                <div class="stat-label">Medications</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon diag"><i class="ph-fill ph-activity"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value" id="statDiag">0</div>
+                                <div class="stat-label">Diagnoses</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon dose"><i class="ph-fill ph-scales"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value" id="statDose">0</div>
+                                <div class="stat-label">Dosages</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon freq"><i class="ph-fill ph-clock-countdown"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value" id="statFreq">0</div>
+                                <div class="stat-label">Frequencies</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Voice Guidance Assistant Banner -->
+                    <div class="voice-card">
+                        <div class="voice-info">
+                            <div class="voice-avatar">
+                                <i class="ph-fill ph-speaker-high"></i>
+                            </div>
+                            <div class="voice-text">
+                                <h4>Voice Guidance & Accessibility</h4>
+                                <p id="voiceStatusText">Listen to clear spoken instructions for patient care</p>
+                            </div>
+                        </div>
+                        <div class="voice-controls">
+                            <select class="voice-select" id="voiceLangSelect" onchange="changeVoiceLanguage()">
+                                <option value="en">English (Voice)</option>
+                                <option value="ta">Tamil (Voice)</option>
+                                <option value="hi">Hindi (Voice)</option>
+                                <option value="es">Spanish (Voice)</option>
+                            </select>
+                            <button class="voice-btn" id="voicePlayBtn" onclick="toggleVoicePlayback()">
+                                <i class="ph-fill ph-play" id="voiceIcon"></i>
+                                <span id="voiceBtnLabel">Read Aloud</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tabs & Findings -->
+                    <div class="glass-card">
+                        <div class="tabs-header">
+                            <button class="tab-btn active" onclick="switchTab('insights')">
+                                <i class="ph-fill ph-stethoscope"></i> Clinical Insights
+                            </button>
+                            <button class="tab-btn" onclick="switchTab('transcript')">
+                                <i class="ph-fill ph-file-text"></i> OCR Transcript
+                            </button>
+                            <button class="tab-btn" onclick="switchTab('json')">
+                                <i class="ph-fill ph-code"></i> Structured JSON
+                            </button>
+                        </div>
+
+                        <!-- Tab 1: Clinical Insights -->
+                        <div class="tab-pane active" id="pane-insights">
+
+                            <!-- Medication Breakdown -->
+                            <div class="entity-section">
+                                <div class="section-subtitle">
+                                    <i class="ph-fill ph-pill"></i> Detected Medications & Dosages
+                                </div>
+                                <div class="cards-list" id="medicationsList">
+                                    <!-- Rendered dynamically -->
+                                </div>
+                            </div>
+
+                            <!-- Diagnoses & Symptoms -->
+                            <div class="entity-section">
+                                <div class="section-subtitle">
+                                    <i class="ph-fill ph-first-aid"></i> Identified Symptoms / Diagnoses
+                                </div>
+                                <div class="med-badges" id="diagnosesList">
+                                    <!-- Rendered dynamically -->
+                                </div>
+                            </div>
+
+                            <!-- Dosage Schedule Timeline -->
+                            <div class="entity-section">
+                                <div class="section-subtitle">
+                                    <i class="ph-fill ph-calendar-check"></i> Patient Schedule & Timing Guide
+                                </div>
+                                <div class="timeline-grid">
+                                    <div class="timeline-slot">
+                                        <div class="slot-header"><i class="ph-fill ph-sun"></i> Morning</div>
+                                        <div class="slot-items" id="slotMorning">Follow prescribed morning dose with food</div>
+                                    </div>
+                                    <div class="timeline-slot">
+                                        <div class="slot-header"><i class="ph-fill ph-sun-horizon"></i> Afternoon</div>
+                                        <div class="slot-items" id="slotAfternoon">Take afternoon dosage if specified (e.g., 1-1-1)</div>
+                                    </div>
+                                    <div class="timeline-slot">
+                                        <div class="slot-header"><i class="ph-fill ph-moon-stars"></i> Night</div>
+                                        <div class="slot-items" id="slotNight">Follow bedtime schedule as advised</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Tab 2: OCR Transcript -->
+                        <div class="tab-pane" id="pane-transcript">
+                            <div class="code-box">
+                                <div class="code-header">
+                                    <span>RAW OCR EXTRACTED TEXT</span>
+                                    <button class="copy-btn" onclick="copyText('rawTranscript')"><i class="ph ph-copy"></i> Copy Text</button>
+                                </div>
+                                <pre id="rawTranscript"></pre>
+                            </div>
+                        </div>
+
+                        <!-- Tab 3: Structured JSON -->
+                        <div class="tab-pane" id="pane-json">
+                            <div class="code-box">
+                                <div class="code-header">
+                                    <span>FASTAPI JSON PAYLOAD</span>
+                                    <button class="copy-btn" onclick="copyText('jsonRaw')"><i class="ph ph-copy"></i> Copy JSON</button>
+                                </div>
+                                <pre id="jsonRaw"></pre>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>AI-Powered Healthcare Communication Assistant &bull; FastAPI + PaddleOCR + scisPaCy</p>
+    </footer>
+
+    <!-- Client-side Logic -->
+    <script>
+        let currentFile = null;
+        let currentZoom = 1.0;
+        let lastAnalysisResult = null;
+        let isSpeaking = false;
+        let speechSynth = window.speechSynthesis;
+        let currentUtterance = null;
+
+        // Theme Toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const target = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', target);
+            document.getElementById('themeIcon').className = target === 'dark' ? 'ph ph-moon' : 'ph ph-sun';
+            localStorage.setItem('medipulse_theme', target);
+        }
+
+        // Initialize Theme from localStorage
+        (function() {
+            const saved = localStorage.getItem('medipulse_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', saved);
+            document.getElementById('themeIcon').className = saved === 'dark' ? 'ph ph-moon' : 'ph ph-sun';
+        })();
+
+        // File Selection Handlers
+        function handleFileSelected(e) {
+            const file = e.target.files[0];
+            if (file) {
+                loadFile(file);
+            }
+        }
+
+        function loadFile(file) {
+            currentFile = file;
+            document.getElementById('dropText').textContent = file.name;
+            document.getElementById('fileBadge').textContent = (file.size / 1024).toFixed(1) + ' KB';
+            document.getElementById('fileBadge').style.display = 'inline-block';
+            document.getElementById('processBtn').disabled = false;
+
+            // Render Preview
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('imagePreview').src = e.target.result;
+                    document.getElementById('previewContainer').style.display = 'flex';
+                    document.getElementById('previewMeta').textContent = `${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                document.getElementById('previewContainer').style.display = 'none';
+            }
+        }
+
+        // Drag and drop listeners
+        const dropzone = document.getElementById('dropzone');
+        ['dragenter', 'dragover'].forEach(name => {
+            dropzone.addEventListener(name, (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+        });
+        ['dragleave', 'drop'].forEach(name => {
+            dropzone.addEventListener(name, (e) => { e.preventDefault(); dropzone.classList.remove('dragover'); });
+        });
+        dropzone.addEventListener('drop', (e) => {
+            if (e.dataTransfer.files.length) {
+                loadFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Quick Load Sample Prescription
+        async function loadSample(filename) {
+            try {
+                document.getElementById('dropText').textContent = `Loading ${filename}...`;
+                const res = await fetch(`/api/v1/samples/${filename}`);
+                if (!res.ok) throw new Error("Could not fetch sample");
+                const blob = await res.blob();
+                const file = new File([blob], filename, { type: 'image/jpeg' });
+                loadFile(file);
+            } catch (err) {
+                alert("Failed to load sample: " + err.message);
+            }
+        }
+
+        // Image Zoom
+        function zoomPreview(factor) {
+            currentZoom = Math.max(0.5, Math.min(3.0, currentZoom * factor));
+            document.getElementById('imagePreview').style.transform = `scale(${currentZoom})`;
+        }
+        function resetZoom() {
+            currentZoom = 1.0;
+            document.getElementById('imagePreview').style.transform = `scale(1.0)`;
+        }
+
+        // Tabs Navigation
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+
+            event.currentTarget.classList.add('active');
+            document.getElementById(`pane-${tabName}`).classList.add('active');
+        }
+
+        // Process Document via FastAPI Endpoint
+        async function processDocument() {
+            if (!currentFile) return;
+
+            const btn = document.getElementById('processBtn');
+            const btnText = document.getElementById('btnText');
+            const laser = document.getElementById('scannerLaser');
+
+            btn.disabled = true;
+            btnText.innerHTML = '<div class="spinner"></div> OCR & Medical NER Processing...';
+            laser.style.display = 'block';
+
+            const formData = new FormData();
+            formData.append("file", currentFile);
+
+            try {
+                const response = await fetch("/api/v1/documents/upload", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+                laser.style.display = 'none';
+                btn.disabled = false;
+                btnText.innerHTML = '<i class="ph-fill ph-sparkle"></i> Analyze Prescription';
+
+                if (response.ok) {
+                    lastAnalysisResult = data;
+                    renderAnalysis(data);
+                } else {
+                    alert("Analysis Error: " + (data.detail || "Server error"));
+                }
+            } catch (err) {
+                laser.style.display = 'none';
+                btn.disabled = false;
+                btnText.innerHTML = '<i class="ph-fill ph-sparkle"></i> Analyze Prescription';
+                alert("Network error: Could not reach FastAPI backend. " + err.message);
+            }
+        }
+
+        // Render Findings into Dashboard
+        function renderAnalysis(data) {
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('resultsDashboard').style.display = 'flex';
+
+            const extracted = data.extracted_medical_data || {};
+            const meds = extracted.medications || [];
+            const diags = extracted.diagnoses_or_symptoms || [];
+            const dosages = extracted.dosages || [];
+            const freqs = extracted.frequencies || [];
+
+            // Update Counts
+            document.getElementById('statMeds').textContent = meds.length;
+            document.getElementById('statDiag').textContent = diags.length;
+            document.getElementById('statDose').textContent = dosages.length;
+            document.getElementById('statFreq').textContent = freqs.length;
+
+            // Render Medications
+            const medContainer = document.getElementById('medicationsList');
+            if (meds.length === 0) {
+                medContainer.innerHTML = `<div class="med-card"><div class="med-name" style="color:var(--text-muted);">No specific medications isolated by NER</div><div class="med-desc">See the raw OCR transcript tab for full text extraction.</div></div>`;
+            } else {
+                medContainer.innerHTML = meds.map((med, idx) => {
+                    const matchedDose = dosages[idx] || (dosages.length > 0 ? dosages[0] : "");
+                    const matchedFreq = freqs[idx] || (freqs.length > 0 ? freqs[0] : "As directed");
+                    return `
+                        <div class="med-card">
+                            <div class="med-header">
+                                <div class="med-name">${med}</div>
+                                <i class="ph-fill ph-pill" style="color:var(--primary);"></i>
+                            </div>
+                            <div class="med-badges">
+                                ${matchedDose ? `<span class="pill-badge pill-dosage"><i class="ph-fill ph-scales"></i> ${matchedDose}</span>` : ''}
+                                ${matchedFreq ? `<span class="pill-badge pill-freq"><i class="ph-fill ph-clock"></i> ${matchedFreq}</span>` : ''}
+                            </div>
+                            <div class="med-desc">
+                                💊 Prescribed medicine. Take strictly according to physician dosage and frequency guidelines.
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Render Diagnoses / Symptoms
+            const diagContainer = document.getElementById('diagnosesList');
+            if (diags.length === 0) {
+                diagContainer.innerHTML = `<span style="color:var(--text-muted); font-size:0.85rem;">None explicitly isolated</span>`;
+            } else {
+                diagContainer.innerHTML = diags.map(d => `<span class="pill-badge pill-diag"><i class="ph-fill ph-warning-circle"></i> ${d}</span>`).join('');
+            }
+
+            // Populate Timeline
+            if (freqs.length > 0) {
+                document.getElementById('slotMorning').textContent = `Take medications with morning meal (${freqs.join(', ')})`;
+                document.getElementById('slotAfternoon').textContent = freqs.some(f => f.includes('1-1-1') || f.includes('thrice')) ? 'Take midday dose' : 'No afternoon dose scheduled';
+                document.getElementById('slotNight').textContent = `Follow evening regimen (${freqs.join(', ')})`;
+            }
+
+            // Transcripts & JSON
+            document.getElementById('rawTranscript').textContent = data.raw_text || "No text detected by OCR.";
+            document.getElementById('jsonRaw').textContent = JSON.stringify(data, null, 4);
+
+            // Auto-prepare speech guide
+            prepareVoiceGuide(data);
+        }
+
+        // Voice Guidance / Speech Synthesis
+        let speechGuideText = "";
+
+        function prepareVoiceGuide(data) {
+            const meds = (data.extracted_medical_data?.medications || []).join(', ');
+            const diags = (data.extracted_medical_data?.diagnoses_or_symptoms || []).join(', ');
+            const freqs = (data.extracted_medical_data?.frequencies || []).join(', ');
+
+            if (meds) {
+                speechGuideText = `Prescription summary for your doctor's visit. You have been prescribed ${meds}. `;
+                if (freqs) {
+                    speechGuideText += `Instructions state: ${freqs}. `;
+                }
+                if (diags) {
+                    speechGuideText += `Associated conditions noted: ${diags}. `;
+                }
+                speechGuideText += `Please remember to take medications with adequate water and consult your pharmacist for any questions.`;
+            } else {
+                speechGuideText = `Document analyzed. Extracted text is: ${data.raw_text?.slice(0, 200) || 'no text detected'}`;
+            }
+
+            document.getElementById('voiceStatusText').textContent = "Ready to speak clinical instructions";
+        }
+
+        function toggleVoicePlayback() {
+            if (!('speechSynthesis' in window)) {
+                alert("Speech Synthesis is not supported in this browser.");
+                return;
+            }
+
+            if (isSpeaking) {
+                speechSynth.cancel();
+                isSpeaking = false;
+                updateVoiceButton(false);
+                return;
+            }
+
+            if (!speechGuideText) {
+                alert("Please analyze a prescription first.");
+                return;
+            }
+
+            currentUtterance = new SpeechSynthesisUtterance(speechGuideText);
+            currentUtterance.rate = 0.95;
+            
+            const selectedLang = document.getElementById('voiceLangSelect').value;
+            currentUtterance.lang = selectedLang;
+
+            currentUtterance.onstart = () => {
+                isSpeaking = true;
+                updateVoiceButton(true);
+            };
+
+            currentUtterance.onend = () => {
+                isSpeaking = false;
+                updateVoiceButton(false);
+            };
+
+            currentUtterance.onerror = () => {
+                isSpeaking = false;
+                updateVoiceButton(false);
+            };
+
+            speechSynth.speak(currentUtterance);
+        }
+
+        function updateVoiceButton(playing) {
+            const btn = document.getElementById('voicePlayBtn');
+            const icon = document.getElementById('voiceIcon');
+            const label = document.getElementById('voiceBtnLabel');
+
+            if (playing) {
+                btn.classList.add('playing');
+                icon.className = "ph-fill ph-pause";
+                label.textContent = "Stop Voice";
+            } else {
+                btn.classList.remove('playing');
+                icon.className = "ph-fill ph-play";
+                label.textContent = "Read Aloud";
+            }
+        }
+
+        function changeVoiceLanguage() {
+            if (isSpeaking) {
+                speechSynth.cancel();
+                isSpeaking = false;
+                updateVoiceButton(false);
+            }
+        }
+
+        // Copy Text Helper
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Copied to clipboard!");
+            });
+        }
+    </script>
+</body>
+</html>
