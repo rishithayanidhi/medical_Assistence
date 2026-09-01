@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediAssist - Medical OCR & Plain-Language Simplifier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+  <div class="app-background"></div>
+
+  <!-- Header -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+            <path d="M12 5v14" />
+            <path d="M5 12h14" />
+          </svg>
+        </div>
+        <div>
+          <span class="brand-title">MediAssist</span>
+          <span class="brand-badge">Clinical AI</span>
+        </div>
+      </div>
+      <div class="nav-status">
+        <span class="pulse-dot"></span>
+        <span>Medical Filter & Simplifier Ready</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+    <section class="hero-section">
+      <h1 class="hero-title">Medical Information Extractor & Plain-Language Simplifier</h1>
+      <p class="hero-subtitle">Extracts <strong>only essential clinical data</strong> (Prescriptions, Dosages,
+        Frequencies, Pill amounts, Lab tests) in clean JSON format, with one-click plain-English translation.</p>
+    </section>
+
+    <!-- Upload & Workflow Area -->
+    <div class="grid-layout">
+      <!-- Left Column: Upload & Extracted Clinical Data -->
+      <div class="column">
+        <div class="card glass-card">
+          <div class="card-header space-between">
+            <div class="flex-align">
+              <div class="step-badge">1</div>
+              <div>
+                <h2 class="card-title">Upload Medical Document</h2>
+                <p class="card-desc">Prescriptions, Doctor Notes, or Diagnostic Reports</p>
+              </div>
+            </div>
+
+            <!-- Single Language Selection Dropdown -->
+            <div class="language-selector-wrapper" style="display: flex; align-items: center; gap: 0.5rem;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+              <select id="languageSelect"
+                style="background: #1e293b; color: #f3f4f6; border: 1px solid #334155; padding: 0.35rem 0.6rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">
+                <option value="en">English</option>
+                <option value="ta">தமிழ் (Tamil)</option>
+                <option value="hi">हिन्दी (Hindi)</option>
+                <option value="te">తెలుగు (Telugu)</option>
+                <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                <option value="ml">മലയാളം (Malayalam)</option>
+                <option value="mr">मराठी (Marathi)</option>
+                <option value="bn">বাংলা (Bengali)</option>
+                <option value="gu">ગુજરાતી (Gujarati)</option>
+                <option value="or">ଓଡ଼ିଆ (Odia)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Dropzone -->
+          <div class="dropzone" id="dropzone">
+            <input type="file" id="fileInput" accept=".png,.jpg,.jpeg,.pdf" hidden>
+            <div class="dropzone-content" id="dropzonePrompt">
+              <div class="upload-icon-wrapper">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+              </div>
+              <p class="dropzone-main-text"><strong>Click to browse</strong> or drag & drop</p>
+              <p class="dropzone-sub-text">PNG, JPG, PDF (Filters out helpline, addresses & noise)</p>
+            </div>
+
+            <!-- Preview Mode -->
+            <div class="file-preview-wrapper hidden" id="filePreviewWrapper">
+              <div class="preview-media" id="previewMedia"></div>
+              <div class="file-info">
+                <span class="file-name" id="fileName">document.png</span>
+                <span class="file-size" id="fileSize">1.2 MB</span>
+              </div>
+              <button type="button" class="btn-icon-danger" id="removeFileBtn" title="Remove file">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Action Extract Button -->
+          <div class="card-actions">
+            <button id="extractBtn" class="btn btn-primary" disabled>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+              </svg>
+              <span id="extractBtnText">Extract Medical Data</span>
+            </button>
+          </div>
+
+          <!-- Quick Test Presets -->
+          <div class="preset-section">
+            <span class="preset-label">Or test with a sample:</span>
+            <div class="preset-chips">
+              <button class="chip" data-sample="prescription">📋 Rx Prescription</button>
+              <button class="chip" data-sample="vitals">🧪 Blood & Vitals Report</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Extracted Medical JSON Output Card -->
+        <div class="card glass-card result-box hidden" id="extractedCard">
+          <div class="card-header space-between">
+            <div class="flex-align">
+              <div class="step-badge success">2</div>
+              <div>
+                <h2 class="card-title">Extracted Medical Data (JSON)</h2>
+                <p class="card-desc" id="extractedMeta">Pure clinical findings without administrative noise</p>
+              </div>
+            </div>
+            <div class="header-actions">
+              <button class="btn-sm" id="copyJsonBtn" title="Copy raw JSON">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                Copy JSON
+              </button>
+            </div>
+          </div>
+
+          <!-- Tabs: Structured Cards vs JSON vs Lines -->
+          <div class="tab-bar">
+            <button class="tab-btn active" data-tab="medCardsTab">💊 Prescriptions & Vitals</button>
+            <button class="tab-btn" data-tab="jsonTab">JSON Schema</button>
+            <button class="tab-btn" data-tab="linesTab">Pure Medical Lines</button>
+          </div>
+
+          <!-- Tab 1: Prescriptions & Vitals Cards -->
+          <div class="tab-content" id="medCardsTab">
+            <div id="parsedMedicalContainer" class="parsed-medical-container"></div>
+          </div>
+
+          <!-- Tab 2: Raw JSON -->
+          <div class="tab-content hidden" id="jsonTab">
+            <pre class="code-block" id="jsonCodeOutput"></pre>
+          </div>
+
+          <!-- Tab 3: Medical Lines -->
+          <div class="tab-content hidden" id="linesTab">
+            <div class="lines-container" id="textLinesOutput"></div>
+          </div>
+
+          <!-- Prominent Simplify Button -->
+          <div class="simplify-trigger-banner">
+            <div class="simplify-info">
+              <h3>Simplify Medical Information</h3>
+              <p>Translate medical terms, dosage frequencies, and Latin abbreviations into simple instructions.</p>
+            </div>
+            <button id="simplifyBtn" class="btn btn-gradient">
+              <span class="sparkle-icon">✨</span>
+              <span id="simplifyBtnText">Simplify Extracted Info</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Simplified Explanation -->
+      <div class="column">
+        <div class="card glass-card simplified-card" id="simplifiedCard">
+          <div class="card-header space-between">
+            <div class="flex-align">
+              <div class="step-badge purple">3</div>
+              <div>
+                <h2 class="card-title">Simplified Patient Guide</h2>
+                <p class="card-desc" id="simplifiedMeta">Plain-language patient explanation</p>
+              </div>
+            </div>
+            
+            <div class="header-actions" style="display: flex; align-items: center; gap: 0.5rem;">
+              <!-- Clean Listen Voice Guidance Button -->
+              <button id="listenVoiceBtn" disabled style="background: #0284c7; color: #ffffff; border: none; padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; font-weight: 500; opacity: 0.5;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+                <span id="voiceBtnText">Listen Voice</span>
+              </button>
+
+              <button class="btn-sm" id="copySummaryBtn" disabled>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                Copy Text
+              </button>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div class="empty-state" id="simplifiedEmptyState">
+            <div class="empty-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
+              </svg>
+            </div>
+            <h3>No Document Simplified Yet</h3>
+            <p>Upload a medical document or try a sample, then click the <strong>"Simplify"</strong> button to view the easy-to-understand breakdown.</p>
+          </div>
+
+          <!-- Loaded State -->
+          <div class="simplified-content hidden" id="simplifiedContent">
+            <div class="summary-section">
+              <div class="section-badge-header">
+                <span class="subhead-title">Easy-to-Read Instructions</span>
+                <span class="pill-counter" id="termsCounterBadge">0 terms simplified</span>
+              </div>
+              <div class="summary-text-box" id="simplifiedSummaryText"></div>
+            </div>
+
+            <div class="terms-section">
+              <h3 class="subhead-title">Medical Terms & Dosage Breakdown</h3>
+              <div class="terms-grid" id="termsGrid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast notification -->
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+
+</html>
